@@ -39,7 +39,7 @@ def login():
         
         try:
             conn_str = (
-                f'DRIVER={{SQL Server}};'
+                f'DRIVER={{ODBC Driver 17 for SQL Server}};'
                 f'SERVER={DB_SERVER};'
                 f'DATABASE={DB_SERVER_DB};'
                 f'UID={DB_UID};'
@@ -83,7 +83,7 @@ def index():
         return redirect(url_for('login'))
     
     conn_str = (
-                f'DRIVER={{SQL Server}};'
+                f'DRIVER={{ODBC Driver 17 for SQL Server}};'
                 f'SERVER={DB_SERVER};'
                 f'DATABASE={DB_SERVER_DB};'
                 f'UID={DB_UID};'
@@ -108,7 +108,7 @@ def update_status():
     logged_in_user = session.get('username', 'Unknown')
 
     conn_str = (
-                f'DRIVER={{SQL Server}};'
+                f'DRIVER={{ODBC Driver 17 for SQL Server}};'
                 f'SERVER={DB_SERVER};'
                 f'DATABASE={DB_SERVER_DB};'
                 f'UID={DB_UID};'
