@@ -16,12 +16,6 @@ RUN ACCEPT_EULA=Y apt-get install -y msodbcsql18
 # 4. Set the working directory in the container
 WORKDIR /app
 
-# 5. Copy the requirements file and install Python packages
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 # 6. Copy your application code into the container
 COPY . .
-
-# 7. Tell Gunicorn to run the app. Render sets the $PORT variable.
-CMD ["gunicorn", "--worker-class", "gevent", "--bind", "0.0.0.0:$PORT", "app:app"]
