@@ -40,7 +40,7 @@ def login():
         try:
             conn_str = (
                 f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-                f'SERVER={DB_SERVER};'
+                f'SERVER={DB_SERVER}:1434;'
                 f'DATABASE={DB_SERVER_DB};'
                 f'UID={DB_UID};'
                 f'PWD={DB_PWD};' 
@@ -84,7 +84,7 @@ def index():
     
     conn_str = (
                 f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-                f'SERVER={DB_SERVER};'
+                f'SERVER={DB_SERVER}:1434;'
                 f'DATABASE={DB_SERVER_DB};'
                 f'UID={DB_UID};'
                 f'PWD={DB_PWD};'
@@ -109,7 +109,7 @@ def update_status():
 
     conn_str = (
                 f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-                f'SERVER={DB_SERVER};'
+                f'SERVER={DB_SERVER}:1434;'
                 f'DATABASE={DB_SERVER_DB};'
                 f'UID={DB_UID};'
                 f'PWD={DB_PWD};'
