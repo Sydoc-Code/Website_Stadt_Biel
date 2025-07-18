@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import pymssql
+import pyodbc
 from dotenv import load_dotenv
 import os
 from datetime import timedelta
@@ -38,16 +38,19 @@ def login():
             return render_template("login.html", error="Invalid credentials")
         
         try:
-            conn = pymssql.connect(
-                server=f"{DB_SERVER}:1433",
-                user=DB_UID,
-                password=DB_PWD,
-                database=DB_SERVER_DB
+            conn_str = (
+                f'DRIVER={{SQL Server}};'
+                f'SERVER={DB_SERVER};'
+                f'DATABASE={DB_SERVER_DB};'
+                f'UID={DB_UID};'
+                f'PWD={DB_PWD};' 
+                f'TrustServerCertificate=yes;'
             )
+            conn = pyodbc.connect(conn_str)
             cursor = conn.cursor()
             
             cursor.execute("""
-                SELECT password FROM Users WHERE username = %s
+                SELECT password FROM Users WHERE username = ?
             """, (UID_REQUEST,))
             user_record = cursor.fetchone()
 
@@ -67,9 +70,6 @@ def login():
         except Exception as e:
             app.logger.error(f"Database error during login: {e}")
             return render_template("login.html", error="Login temporarily unavailable")
-        finally:
-            if conn:
-                conn.close()
     return render_template("login.html")
 
 @app.route("/logout")
@@ -82,12 +82,15 @@ def index():
     if not session.get('username'):
         return redirect(url_for('login'))
     
-    conn = pymssql.connect(
-        server=f"{DB_SERVER}:1433",
-        user=DB_UID,
-        password=DB_PWD,
-        database=DB_SERVER_DB
-    )
+    conn_str = (
+                f'DRIVER={{SQL Server}};'
+                f'SERVER={DB_SERVER};'
+                f'DATABASE={DB_SERVER_DB};'
+                f'UID={DB_UID};'
+                f'PWD={DB_PWD};'
+                f'TrustServerCertificate=yes;'
+            )
+    conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     cursor.execute("""
         SELECT * FROM v_WebDisplay
@@ -104,18 +107,21 @@ def update_status():
     id = request.form.get("ID")
     logged_in_user = session.get('username', 'Unknown')
 
-    conn = pymssql.connect(
-        server=DB_SERVER,
-        user=DB_UID,
-        password=DB_PWD,
-        database=DB_SERVER_DB
-    )
+    conn_str = (
+                f'DRIVER={{SQL Server}};'
+                f'SERVER={DB_SERVER};'
+                f'DATABASE={DB_SERVER_DB};'
+                f'UID={DB_UID};'
+                f'PWD={DB_PWD};'
+                f'TrustServerCertificate=yes;'
+            )
+    conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO FileStatuses VALUES(%s, null, null, 'Demanded', GETDATE(), %s)",
+        "INSERT INTO FileStatuses VALUES(?, null, null, 'Demanded', GETDATE(), ?)",
         (id, logged_in_user)
     )
-    conn.commit()
+    cursor.commit()
     conn.close()
     
     return redirect(url_for("index"))
