@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: my-flask-app # You can change this name
+    env: python
+    region: frankfurt # Or your preferred region
+    plan: starter # Important for the static IP you needed
+    
+    # These commands run as root to set up the Microsoft ODBC driver
+    nativeEnvironment:
+      debian:
+        preInstallCommands:
+          - curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg
+          - echo "deb [arch=amd64] https://packages.microsoft.com/debian/11/prod bullseye main" > /etc/apt/sources.list.d/mssql-release.list
+        packages:
+          - unixodbc-dev
+          - msodbcsql18
+
+    # Your build command is now much simpler
+    buildCommand: "pip install -r requirements.txt"
+    
+    # Your start command remains the same
+    startCommand: "gunicorn --worker-class gevent --bind 0.0.0.0:$PORT app:app"
+    
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - fromGroup: credential-secrets
