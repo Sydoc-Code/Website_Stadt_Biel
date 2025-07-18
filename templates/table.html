@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table</title>
+    <style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        background-color: #121212; 
+        color: #e0e0e0; 
+        margin: 0;
+        padding: 20px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto 20px auto;
+        display: flex;
+    }
+
+    #searchInput {
+        width: 100%;
+        padding: 12px 15px;
+        font-family: inherit;
+        font-size: 1rem;
+        background-color: #252525;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #e0e0e0;
+        box-sizing: border-box; 
+    }
+
+    #searchInput::placeholder {
+        color: #777;
+    }
+
+    #searchInput:focus {
+        outline: none;
+        border-color: #ee0c0c;
+        box-shadow: 0 0 0 2px rgba(238, 12, 12, 0.3);
+    }
+
+    .table-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background-color: #1e1e1e; 
+        border-radius: 8px;
+        overflow: hidden; 
+        border: 1px solid #333; 
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    thead {
+        background-color: #252525; 
+    }
+
+    th {
+        padding: 16px 20px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #a0a0a0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid #333; 
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #333;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    tbody tr:last-child {
+        border-bottom: none; 
+    }
+
+    tbody tr:hover {
+        background-color: #2a2a2a; 
+    }
+
+    td {
+        padding: 16px 20px;
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    tbody tr[data-status="Pending"] {
+        border-left: 3px solid #FFC107; 
+        background-color: rgba(240, 173, 78, 0.05);
+    }
+
+    tbody tr[data-status="In Progress"] {
+        border-left: 3px solid #2196F3; 
+        background-color: rgba(91, 192, 222, 0.05);
+    }
+
+    tbody tr[data-status*="Demanded"] {
+        border-left: 3px solid #ff2516; 
+        background-color: rgba(251, 45, 45, 0.05);
+    }
+
+    tbody tr[data-status="Done"] {
+        border-left: 3px solid #4CAF50; 
+        background-color: rgba(123, 231, 123, 0.05);
+    }
+
+    .demand-btn {
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #fff;
+        background-color: #ee0c0c; 
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        min-width: 110px;
+        text-align: center;
+    }
+
+    .demand-btn:hover:not(:disabled) {
+        background-color: #bd0000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(240, 69, 69, 0.3);
+    }
+
+    .demand-btn:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    .demand-btn:focus-visible { 
+        outline: 2px solid #bc1a1a;
+        outline-offset: 2px;
+    }
+
+    .demand-btn:disabled {
+        background-color: #444;
+        color: #777;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    .form-container {
+        position: relative;
+        display: flex;
+        justify-content: flex-start; 
+    }
+
+    .form-container.loading::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 55px; 
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #e0e0e0; 
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+    }
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        
+        .table-container {
+            margin: 10px 0;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            overflow-x: auto;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .demand-btn {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+        }
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.75);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        background-color: #252525;
+        padding: 30px 40px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+    }
+    
+    .modal-overlay.show .modal-content {
+        transform: scale(1);
+    }
+
+    .modal-content h2 {
+        margin-top: 0;
+        color: #e0e0e0;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
+    .modal-content p {
+        margin: 15px 0 30px;
+        color: #a0a0a0;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .modal-btn {
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 6px;
+        padding: 12px 25px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+        min-width: 120px;
+    }
+
+    .modal-btn-confirm {
+        background-color: #ee0c0c;
+        color: #fff;
+    }
+
+    .modal-btn-confirm:hover {
+        background-color: #bd0000;
+        transform: translateY(-2px);
+    }
+
+    .modal-btn-cancel {
+        background-color: #444;
+        color: #ccc;
+    }
+
+    .modal-btn-cancel:hover {
+        background-color: #555;
+        transform: translateY(-2px);
+    }
+    </style>
+</head>
+<body>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search across all columns...">
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    {% for col in columns %}
+                        <th>{{ col }}</th>
+                    {% endfor %}
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr data-status="{{ row[1] if row|length > 1 else 'Unknown' }}">
+                        {% for item in row %}
+                            <td>{{ item }}</td>
+                        {% endfor %}
+                        <td>
+                            <form method="POST" action="{{ url_for('update_status') }}" class="form-container">
+                                <input type="hidden" name="ID" value="{{ row[0] }}">
+                                <button type="submit" class="demand-btn" {% if row[1] != 'Pending' %}disabled{% endif %}>
+                                    Demand
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Confirm Action</h2>
+            <p>Are you sure you want to demand this item?</p>
+            <div class="modal-actions">
+                <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">Cancel</button>
+                <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">Demand</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('confirmModal');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            const forms = document.querySelectorAll('form.form-container');
+            let formToSubmit = null;
+
+            forms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    formToSubmit = this;
+                    modal.classList.add('show');
+                });
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                if (formToSubmit) {
+                    const buttonInForm = formToSubmit.querySelector('.demand-btn');
+                    formToSubmit.classList.add('loading');
+                    buttonInForm.style.color = 'transparent'; 
+                    buttonInForm.disabled = true;
+                    formToSubmit.submit();
+                }
+            });
+
+            const closeModal = () => {
+                modal.classList.remove('show');
+                formToSubmit = null; 
+            };
+
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            const searchInput = document.getElementById('searchInput');
+            const tableBody = document.querySelector('.table-container tbody');
+            const allRows = tableBody.querySelectorAll('tr');
+
+            searchInput.addEventListener('keyup', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+
+                allRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    if (rowText.includes(searchTerm)) {
+                        row.style.display = ''; 
+                    } else {
+                        row.style.display = 'none'; 
+                    }
+                });
+            });
+        });
+    </script>
+    </body>
+</html>
